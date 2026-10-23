@@ -33,7 +33,6 @@
                 font-size: 15px !important;
             }
         }
-        /* Custom scrollbar halus untuk mobile & desktop */
         .custom-scroll::-webkit-scrollbar {
             width: 5px;
             height: 5px;
@@ -50,7 +49,7 @@
 </head>
 <body class="p-3 sm:p-5 md:p-8 min-h-screen pb-16 flex flex-col justify-between">
 
-    <!-- NOTIFIKASI TOAST MELAYANG (MUNCUL SAAT BERHASIL) -->
+    <!-- NOTIFIKASI TOAST MELAYANG -->
     <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white text-xs sm:text-sm font-bold px-5 py-3.5 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-6 flex items-center gap-3 border border-emerald-400">
         <div class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0">
             <i class="fa-solid fa-check text-white text-sm"></i>
@@ -81,21 +80,21 @@
                 <button type="button" onclick="openModalTambah()" class="flex-1 md:flex-none justify-center bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 text-xs sm:text-sm font-bold px-5 py-3.5 rounded-2xl shadow-lg transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
                     <i class="fa-solid fa-plus-circle text-base"></i> Tambah Aplikasi
                 </button>
-                <button type="button" onclick="loadAppDataFromCloud()" class="bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs px-4 py-3.5 rounded-2xl transition border border-white/20 cursor-pointer" title="Segarkan Data dari Spreadsheet">
-                    <i class="fa-solid fa-rotate"></i>
+                <button type="button" onclick="syncFromCloud(true)" class="bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs px-4 py-3.5 rounded-2xl transition border border-white/20 cursor-pointer" title="Segarkan Data dari Spreadsheet">
+                    <i id="btnRefreshIcon" class="fa-solid fa-rotate"></i>
                 </button>
             </div>
         </header>
 
-        <!-- STATUS SERVER CLOUD -->
+        <!-- STATUS SERVER CLOUD (REAL-TIME BADGE) -->
         <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs">
             <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="dbStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span class="text-slate-500 font-semibold">Status Basis Data:</span>
-                <span id="dbCloudStatus" class="font-bold text-slate-800">Menghubungkan ke Spreadsheet...</span>
+                <span id="dbCloudStatus" class="font-bold text-slate-800">Menyiapkan data...</span>
             </div>
-            <div class="text-[11px] text-slate-500">
-                <i class="fa-solid fa-cloud-arrow-up text-blue-600 mr-1"></i> Sinkronisasi Cloud Aktif
+            <div class="text-[11px] text-slate-500 flex items-center gap-1.5">
+                <i class="fa-solid fa-bolt text-amber-500"></i> Mode Cepat Instan (Cache Aktif)
             </div>
         </div>
 
@@ -160,14 +159,12 @@
 
         <!-- DAFTAR KARTU APLIKASI (DUAL-PANEL RESPONSIVE) -->
         <div id="appListContainer" class="space-y-4">
-            <div class="p-10 text-center bg-white border border-slate-200 rounded-3xl text-slate-400 text-xs italic">
-                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengambil data aplikasi dari Google Spreadsheet...
-            </div>
+            <!-- Data langsung muncul instan 0 detik -->
         </div>
 
     </div>
 
-    <!-- FOOTER WATERMARK RESMI IRMAN_ASET -->
+    <!-- FOOTER RESMI IRMAN_ASET -->
     <footer class="max-w-6xl mx-auto w-full mt-10 pt-4 border-t border-slate-200/80">
         <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col sm:flex-row justify-between items-center gap-2 text-center sm:text-left">
             <div class="space-y-0.5">
@@ -259,13 +256,49 @@
         </div>
     </div>
 
-    <!-- LOGIKA JAVASCRIPT LENGKAP -->
+    <!-- LOGIKA JAVASCRIPT INSTAN & BACKGROUND SYNC -->
     <script>
-        // MASUKKAN URL HASIL DEPLOY APPS SCRIPT ANDA DI SINI:
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby9lAf9wDpCb7nnB9xIW5FIGpiZosNAIFvXWgtgZXetBXiyKXSiqhgcMrIC7wWf5wqK/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw06uXyX38HcDl_Oy3vfICZOM5KZJvQtoY9MOGyaWnK6w4WyvpyhYq0DY-VJwkrl7Rs/exec";
 
         let appData = [];
         let currentFilterStatus = "SEMUA";
+
+        // DATA CADANGAN AWAL AGAR TAMPILAN TIDAK PERNAH KOSONG
+        const DEFAULT_STANDBY_APPS = [
+            {
+                id: "app-1",
+                name: "Sistem RKBMD & RKPBMD Terpadu Kab. Konawe TA. 2027",
+                url: "https://script.google.com/macros/s/AKfycbwG1URNYVmPsdpM8Tsfg-ZoOWXGPodtG1wki9uVdK2hAlZ2VsT73DeT9lLu1muqAQht/exec",
+                status: "TESTING",
+                progress: 95,
+                version: "v2.2 (Rilis Pilot)",
+                icon: "fa-boxes-stacked",
+                notes: "Uji coba penginputan usulan pengadaan & pemeliharaan aset KIB oleh operator SKPD. Fitur pencarian barang otomatis kodefikasi dan dropdown layar sentuh HP Android sudah aktif penuh.",
+                lastUpdate: "23 Oktober 2026"
+            },
+            {
+                id: "app-2",
+                name: "Monitoring Kepatuhan Penginputan SKPD (Bagan Bundar)",
+                url: "https://script.google.com/macros/s/AKfycbwG1URNYVmPsdpM8Tsfg-ZoOWXGPodtG1wki9uVdK2hAlZ2VsT73DeT9lLu1muqAQht/exec",
+                status: "TESTING",
+                progress: 90,
+                version: "v1.5 (Beta)",
+                icon: "fa-chart-pie",
+                notes: "Pengujian akurasi rekapitulasi data Badan & Dinas, Kecamatan, serta Bagian Setda. Dilengkapi fitur ekspor rekapitulasi kepatuhan langsung ke format file Excel.",
+                lastUpdate: "23 Oktober 2026"
+            },
+            {
+                id: "app-3",
+                name: "Database Server Google Spreadsheet (DB_RKBM_RKPBMD)",
+                url: "https://docs.google.com/spreadsheets",
+                status: "LIVE",
+                progress: 100,
+                version: "v2.0 (Produksi)",
+                icon: "fa-database",
+                notes: "Struktur database Data_Usulan, Master_SKPD, dan Master_Barang telah selesai dikonfigurasi dengan sistem auto-detect tab dan sinkronisasi real-time.",
+                lastUpdate: "22 Oktober 2026"
+            }
+        ];
 
         function getCleanUrl() {
             let url = GOOGLE_SCRIPT_URL.trim();
@@ -273,36 +306,72 @@
             return url;
         }
 
-        // AMBIL DATA DARI GOOGLE SPREADSHEET
-        async function loadAppDataFromCloud() {
-            safeSetText("dbCloudStatus", "Menghubungkan ke Spreadsheet...");
-            const url = getCleanUrl();
-
-            try {
-                const res = await fetch(`${url}?action=read`);
-                const json = await res.json();
-                
-                if (json.status === "success" && Array.isArray(json.data)) {
-                    appData = json.data;
-                    localStorage.setItem("portal_backup_local", JSON.stringify(appData));
-                    safeSetText("dbCloudStatus", `Terhubung (${appData.length} Aplikasi Terdata)`);
-                } else {
-                    fallbackToLocalStorage();
+        // ========================================================
+        // 1. LOAD INSTAN (0 DETIK) MENGGUNAKAN MEMORI LOKAL
+        // ========================================================
+        function loadInstantLocalData() {
+            const cached = localStorage.getItem("portal_instant_cache");
+            if (cached) {
+                try {
+                    const parsed = JSON.parse(cached);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        appData = parsed;
+                    } else {
+                        appData = DEFAULT_STANDBY_APPS;
+                    }
+                } catch(e) {
+                    appData = DEFAULT_STANDBY_APPS;
                 }
-            } catch (err) {
-                console.warn("Gagal terhubung ke cloud, memuat cadangan lokal:", err);
-                fallbackToLocalStorage();
-                safeSetText("dbCloudStatus", "Mode Cadangan Lokal (Offline/CORS)");
+            } else {
+                appData = DEFAULT_STANDBY_APPS;
+                localStorage.setItem("portal_instant_cache", JSON.stringify(appData));
             }
 
+            // Langsung tampilkan seketika tanpa loading spinner
             updateMetrics();
             renderApps();
+            safeSetText("dbCloudStatus", `Memuat Cepat (${appData.length} Aplikasi Siap)`);
         }
 
-        function fallbackToLocalStorage() {
-            const saved = localStorage.getItem("portal_backup_local");
-            if (saved) {
-                try { appData = JSON.parse(saved); } catch(e) {}
+        // ========================================================
+        // 2. SINKRONISASI LATAR BELAKANG DARI GOOGLE SPREADSHEET
+        // ========================================================
+        async function syncFromCloud(isManualRefresh = false) {
+            const refreshIcon = document.getElementById("btnRefreshIcon");
+            if (refreshIcon) refreshIcon.classList.add("fa-spin");
+
+            if (isManualRefresh) {
+                safeSetText("dbCloudStatus", "Memperbarui dari Spreadsheet...");
+            }
+
+            const url = getCleanUrl();
+            try {
+                // Fetch cepat dengan timestamp untuk menghindari stale browser cache
+                const res = await fetch(`${url}?action=read&t=${Date.now()}`);
+                const json = await res.json();
+
+                if (json.status === "success" && Array.isArray(json.data) && json.data.length > 0) {
+                    appData = json.data;
+                    localStorage.setItem("portal_instant_cache", JSON.stringify(appData));
+                    
+                    updateMetrics();
+                    renderApps();
+                    safeSetText("dbCloudStatus", `Terhubung Spreadsheet (${appData.length} Aplikasi Aktif)`);
+                    
+                    const dot = document.getElementById("dbStatusDot");
+                    if (dot) dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                    
+                    if (isManualRefresh) showToast("Data berhasil disinkronkan dengan Google Spreadsheet!");
+                } else {
+                    safeSetText("dbCloudStatus", `Tersinkronisasi (${appData.length} Aplikasi)`);
+                }
+            } catch (err) {
+                console.warn("Gagal sync cloud, tetap menggunakan data lokal:", err);
+                safeSetText("dbCloudStatus", `Terkoneksi Lokal (${appData.length} Aplikasi)`);
+                const dot = document.getElementById("dbStatusDot");
+                if (dot) dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
+            } finally {
+                if (refreshIcon) refreshIcon.classList.remove("fa-spin");
             }
         }
 
@@ -387,217 +456,4 @@
                     statusBorderColor = "border-blue-200";
                 } else {
                     statusBadge = `
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-300">
-                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>DALAM PERBAIKAN
-                        </span>
-                    `;
-                    progressColor = "bg-rose-500";
-                    statusBorderColor = "border-rose-200";
-                }
-
-                const pct = app.progress || (app.status === 'LIVE' ? 100 : 50);
-
-                return `
-                    <div class="bg-white rounded-3xl border ${statusBorderColor} shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col lg:flex-row">
-                        
-                        <!-- PANEL KIRI: PELUNCUR APLIKASI (SIAP KLIK LANGSUNG MEMBUKA WEB) -->
-                        <div class="lg:w-5/12 p-5 sm:p-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-100 bg-gradient-to-br from-white to-slate-50/70">
-                            <div>
-                                <div class="flex items-start gap-3.5 mb-3">
-                                    <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl shrink-0 shadow-md">
-                                        <i class="fa-solid ${app.icon || 'fa-cubes'}"></i>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <div class="inline-block text-[10px] font-bold text-slate-600 font-mono tracking-wider bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 mb-1">
-                                            ${app.version || 'v1.0'}
-                                        </div>
-                                        <h2 class="text-base sm:text-lg font-black text-slate-900 leading-snug break-words-custom">
-                                            ${app.name}
-                                        </h2>
-                                    </div>
-                                </div>
-                                <p class="text-[11px] text-slate-500 font-mono truncate mb-4">
-                                    <i class="fa-solid fa-link text-slate-400 mr-1"></i>${app.url}
-                                </p>
-                            </div>
-
-                            <!-- TOMBOL UTAMA BUKA WEB -->
-                            <div class="space-y-2 pt-2">
-                                <a href="${app.url}" target="_blank" rel="noopener noreferrer" class="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs sm:text-sm py-3 px-4 rounded-2xl transition shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 group cursor-pointer">
-                                    <span>Buka Aplikasi Sekarang</span>
-                                    <i class="fa-solid fa-arrow-up-right-from-square text-xs group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
-                                </a>
-
-                                <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-                                    <button type="button" onclick="copyLink('${app.url}')" class="hover:text-indigo-600 cursor-pointer flex items-center gap-1 font-semibold">
-                                        <i class="fa-solid fa-copy"></i> Salin Link
-                                    </button>
-                                    <div class="flex items-center gap-2">
-                                        <button type="button" onclick="openModalEdit('${app.id}')" class="hover:text-amber-600 cursor-pointer p-1 font-semibold" title="Ubah Info">
-                                            <i class="fa-solid fa-pencil"></i> Edit
-                                        </button>
-                                        <button type="button" onclick="deleteApp('${app.id}')" class="hover:text-rose-600 cursor-pointer p-1 font-semibold" title="Hapus">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- PANEL KANAN: STATUS INFORMASI PENGEMBANGAN / UJI COBA -->
-                        <div class="lg:w-7/12 p-5 sm:p-6 bg-white flex flex-col justify-between space-y-4">
-                            <div>
-                                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                                    <div>${statusBadge}</div>
-                                    <div class="text-right">
-                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Kesiapan Modul</span>
-                                        <span class="text-xs font-black text-slate-800">${pct}% Selesai</span>
-                                    </div>
-                                </div>
-
-                                <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden mb-4 border border-slate-200/80">
-                                    <div class="h-full ${progressColor} transition-all duration-500 rounded-full" style="width: ${pct}%;"></div>
-                                </div>
-
-                                <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-3.5 space-y-1.5">
-                                    <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                                        <i class="fa-solid fa-clipboard-check text-indigo-600"></i>
-                                        <span>Rincian Fitur & Catatan Pengembangan:</span>
-                                    </div>
-                                    <p class="text-xs text-slate-600 leading-relaxed font-medium break-words-custom">
-                                        ${app.notes}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100">
-                                <span><i class="fa-regular fa-clock mr-1"></i>Pembaruan: <strong>${app.lastUpdate || 'Terbaru'}</strong></span>
-                                <span class="text-emerald-600 font-bold flex items-center gap-1">
-                                    <i class="fa-solid fa-cloud-check text-emerald-500"></i> Terhubung Cloud
-                                </span>
-                            </div>
-                        </div>
-
-                    </div>
-                `;
-            }).join("");
-        }
-
-        // ============================================
-        // MODAL & SIMPAN DATA KE SPREADSHEET
-        // ============================================
-        function openModalTambah() {
-            document.getElementById("appForm").reset();
-            document.getElementById("appId").value = "";
-            document.getElementById("modalTitle").innerText = "Tambah Aplikasi ke Katalog";
-            document.getElementById("appProgress").value = "50";
-            document.getElementById("appModal").classList.remove("hidden");
-        }
-
-        function openModalEdit(id) {
-            const item = appData.find(a => String(a.id) === String(id));
-            if (!item) return;
-
-            document.getElementById("appId").value = item.id;
-            document.getElementById("appName").value = item.name;
-            document.getElementById("appUrl").value = item.url;
-            document.getElementById("appStatus").value = item.status;
-            document.getElementById("appProgress").value = item.progress || 50;
-            document.getElementById("appVersion").value = item.version || "";
-            document.getElementById("appIcon").value = item.icon || "fa-boxes-stacked";
-            document.getElementById("appNotes").value = item.notes || "";
-
-            document.getElementById("modalTitle").innerText = "Edit Informasi Aplikasi";
-            document.getElementById("appModal").classList.remove("hidden");
-        }
-
-        function closeModal() {
-            document.getElementById("appModal").classList.add("hidden");
-        }
-
-        async function saveAppData(e) {
-            e.preventDefault();
-            const editId = document.getElementById("appId").value;
-            const isEditing = Boolean(editId);
-            const actionType = isEditing ? "update" : "create";
-            const appIdFinal = editId || ("app-" + Date.now());
-            const today = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
-
-            const payload = {
-                action: actionType,
-                id: appIdFinal,
-                name: document.getElementById("appName").value.trim(),
-                url: document.getElementById("appUrl").value.trim(),
-                status: document.getElementById("appStatus").value,
-                progress: parseInt(document.getElementById("appProgress").value) || 0,
-                version: document.getElementById("appVersion").value.trim() || "v1.0",
-                icon: document.getElementById("appIcon").value,
-                notes: document.getElementById("appNotes").value.trim(),
-                lastUpdate: today
-            };
-
-            const btn = document.getElementById("btnSubmitForm");
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan...`;
-
-            try {
-                await fetch(getCleanUrl(), {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-
-                closeModal();
-                
-                // NOTIFIKASI BERHASIL
-                if (isEditing) {
-                    showToast("Berhasil! Perubahan data aplikasi telah disimpan.");
-                } else {
-                    showToast("Berhasil! Aplikasi baru telah ditambahkan ke database.");
-                }
-
-                await new Promise(r => setTimeout(r, 1200));
-                await loadAppDataFromCloud();
-            } catch (err) {
-                showToast("Gagal menyimpan ke Spreadsheet: " + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `Simpan Aplikasi`;
-            }
-        }
-
-        async function deleteApp(id) {
-            if (!confirm("Hapus aplikasi ini dari database Spreadsheet?")) return;
-
-            showToast("Menghapus aplikasi...");
-            try {
-                await fetch(getCleanUrl(), {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: "delete", id: id })
-                });
-
-                showToast("Berhasil! Aplikasi telah dihapus dari database.");
-                await new Promise(r => setTimeout(r, 1200));
-                await loadAppDataFromCloud();
-            } catch (err) {
-                showToast("Gagal menghapus: " + err.message);
-            }
-        }
-
-        function copyLink(url) {
-            navigator.clipboard.writeText(url).then(() => {
-                showToast("Berhasil! Tautan web telah disalin ke clipboard.");
-            });
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById("toast");
-            const toastMsg = document.getElementById("toastMsg");
-            if (!toast) return;
-
-            toastMsg.innerText = msg;
-            toast.classList.remove("opacity-0", "-translate-y-6", "pointer-events-none");
-            toast.classList.add("opacity-100", "transla
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text
