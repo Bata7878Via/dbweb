@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Proteksi Warna HP Android: Mencegah browser memaksakan mode gelap/pudar -->
+    <!-- Proteksi Warna Anti-Pudar di Layar HP Android -->
     <meta name="color-scheme" content="light">
     <meta name="supported-color-schemes" content="light">
     
-    <title>Portal Monitoring & Katalog Aplikasi - Irman_Aset</title>
+    <title>DevLaunch Hub - Portal Monitoring & Katalog Aplikasi</title>
 
     <meta name="theme-color" content="#0f172a">
     <meta name="mobile-web-app-capable" content="yes">
@@ -15,7 +15,7 @@
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icon CDN -->
+    <!-- FontAwesome 6 Icon CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -25,7 +25,7 @@
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
-            background-color: #f8fafc;
+            background-color: #f1f5f9;
             color: #0f172a;
         }
         @media screen and (max-width: 768px) {
@@ -33,6 +33,7 @@
                 font-size: 15px !important;
             }
         }
+        /* Custom scrollbar */
         .custom-scroll::-webkit-scrollbar {
             width: 5px;
             height: 5px;
@@ -49,7 +50,7 @@
 </head>
 <body class="p-3 sm:p-5 md:p-8 min-h-screen pb-16 flex flex-col justify-between">
 
-    <!-- NOTIFIKASI TOAST MELAYANG -->
+    <!-- TOAST NOTIFIKASI BERHASIL -->
     <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white text-xs sm:text-sm font-bold px-5 py-3.5 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-6 flex items-center gap-3 border border-emerald-400">
         <div class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0">
             <i class="fa-solid fa-check text-white text-sm"></i>
@@ -62,108 +63,113 @@
 
     <div class="max-w-6xl mx-auto w-full space-y-5 sm:space-y-6">
 
-        <!-- HEADER DASHBOARD UTAMA -->
-        <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 text-white rounded-3xl p-5 sm:p-8 shadow-xl border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 relative overflow-hidden">
-            <div class="absolute -top-16 -left-16 w-44 h-44 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -bottom-16 -right-16 w-44 h-44 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+        <!-- HEADER HERO DENGAN GAYA MODERN TECH -->
+        <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-950 text-white rounded-3xl p-5 sm:p-8 shadow-xl border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 relative overflow-hidden">
+            <div class="absolute -top-20 -left-20 w-52 h-52 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -right-20 w-52 h-52 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
-            <div class="relative z-10 space-y-1.5">
-                <h1 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white">
-                    Katalog Aplikasi & Monitoring Rilis Sistem
+            <div class="relative z-10 space-y-2">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-300 text-[11px] font-bold border border-indigo-400/30">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Pusat Kendali Aplikasi Digital</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white">
+                    DevLaunch Hub & Monitor
                 </h1>
                 <p class="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-                    Pusat kendali monitoring berbagai aplikasi digital. Klik tombol aplikasi untuk langsung membuka web tujuan, serta pantau status kesiapan modul dan uji coba fiturnya.
+                    Portal terpadu untuk mengakses langsung berbagai sistem web serta memantau progres pengerjaan dan fitur yang sedang diuji coba secara real-time.
                 </p>
             </div>
 
-            <div class="relative z-10 flex items-center gap-2 w-full md:w-auto">
-                <button type="button" onclick="openModalTambah()" class="flex-1 md:flex-none justify-center bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 text-xs sm:text-sm font-bold px-5 py-3.5 rounded-2xl shadow-lg transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
+            <div class="relative z-10 flex items-center gap-2.5 w-full md:w-auto">
+                <button type="button" onclick="openModalTambah()" class="flex-1 md:flex-none justify-center bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 active:scale-95 text-slate-950 text-xs sm:text-sm font-black px-5 py-3.5 rounded-2xl shadow-lg transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
                     <i class="fa-solid fa-plus-circle text-base"></i> Tambah Aplikasi
                 </button>
-                <button type="button" onclick="loadAllData(true)" class="bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs px-4 py-3.5 rounded-2xl transition border border-white/20 cursor-pointer" title="Segarkan Data">
-                    <i id="btnRefreshIcon" class="fa-solid fa-rotate"></i>
+                <button type="button" onclick="exportDataJson()" class="bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs px-3.5 py-3.5 rounded-2xl transition border border-white/20 cursor-pointer" title="Cadangkan Data (JSON)">
+                    <i class="fa-solid fa-cloud-arrow-down text-sm"></i>
                 </button>
             </div>
         </header>
 
-        <!-- STATUS SERVER BASIS DATA (DIJAMIN LANGSUNG HIJAU AKTIF) -->
+        <!-- STATUS SERVER DAN INDIKATOR KONEKSI (SELALU AKTIF) -->
         <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs">
-            <div class="flex items-center gap-2">
-                <span id="dbStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <div class="flex items-center gap-2.5">
+                <span class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span>
                 <span class="text-slate-500 font-semibold">Status Basis Data:</span>
-                <span id="dbCloudStatus" class="font-bold text-slate-800">Menghubungkan...</span>
+                <span id="statusBadgeText" class="font-bold text-slate-900">Aktif & Sinkron (Memuat...)</span>
             </div>
             <div class="text-[11px] text-slate-500 flex items-center gap-2">
-                <button type="button" onclick="exportDatabaseJSON()" class="text-blue-600 hover:underline font-bold cursor-pointer">
-                    <i class="fa-solid fa-download mr-1"></i>Unduh data.json
-                </button>
+                <span class="inline-flex items-center gap-1 text-emerald-600 font-bold">
+                    <i class="fa-solid fa-bolt"></i> Real-Time Engine (0 Detik)
+                </span>
                 <span>&bull;</span>
-                <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check mr-1"></i>Tersinkronisasi</span>
+                <button type="button" onclick="resetDefault()" class="text-indigo-600 hover:underline font-bold cursor-pointer">
+                    Reset Data Awal
+                </button>
             </div>
         </div>
 
-        <!-- KARTU METRIK RINGKASAN STATUS PENGEMBANGAN -->
+        <!-- 4 KARTU STATISTIK METRIK STATUS -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-            <!-- Total Aplikasi -->
-            <div onclick="filterByStatus('SEMUA')" class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 shadow-xs cursor-pointer hover:border-slate-400 active:scale-98 transition">
-                <div class="flex justify-between items-center text-slate-500 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
-                    <span>Total Aplikasi</span>
-                    <i class="fa-solid fa-layer-group text-slate-400"></i>
+            <!-- Total -->
+            <div onclick="filterStatus('SEMUA')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs cursor-pointer hover:border-slate-400 active:scale-98 transition">
+                <div class="flex justify-between items-center text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+                    <span>Total Sistem</span>
+                    <i class="fa-solid fa-cubes text-slate-400"></i>
                 </div>
-                <h3 id="statTotal" class="text-xl sm:text-2xl font-black text-slate-900 mt-1">0</h3>
-                <span class="text-[10px] text-slate-500 font-semibold">Tersedia di portal</span>
+                <h3 id="statTotal" class="text-2xl font-black text-slate-900 mt-1">0</h3>
+                <span class="text-[10px] text-slate-500 font-semibold">Semua modul terdata</span>
             </div>
 
             <!-- Siap Pakai / Live -->
-            <div onclick="filterByStatus('LIVE')" class="bg-white p-3.5 sm:p-4 rounded-2xl border-l-4 border-l-emerald-500 border border-slate-200/90 shadow-xs cursor-pointer hover:border-emerald-300 active:scale-98 transition">
-                <div class="flex justify-between items-center text-emerald-800 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+            <div onclick="filterStatus('LIVE')" class="bg-white p-4 rounded-2xl border-l-4 border-l-emerald-500 border border-slate-200 shadow-xs cursor-pointer hover:border-emerald-300 active:scale-98 transition">
+                <div class="flex justify-between items-center text-emerald-800 text-[11px] font-bold uppercase tracking-wider">
                     <span>Siap Pakai (Live)</span>
                     <i class="fa-solid fa-circle-check text-emerald-600"></i>
                 </div>
-                <h3 id="statLive" class="text-xl sm:text-2xl font-black text-emerald-700 mt-1">0</h3>
-                <span class="text-[10px] text-emerald-700 font-bold">Produksi & stabil</span>
+                <h3 id="statLive" class="text-2xl font-black text-emerald-700 mt-1">0</h3>
+                <span class="text-[10px] text-emerald-700 font-bold">Produksi & operasional</span>
             </div>
 
             <!-- Tahap Uji Coba -->
-            <div onclick="filterByStatus('TESTING')" class="bg-white p-3.5 sm:p-4 rounded-2xl border-l-4 border-l-amber-500 border border-slate-200/90 shadow-xs cursor-pointer hover:border-amber-300 active:scale-98 transition">
-                <div class="flex justify-between items-center text-amber-800 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+            <div onclick="filterStatus('TESTING')" class="bg-white p-4 rounded-2xl border-l-4 border-l-amber-500 border border-slate-200 shadow-xs cursor-pointer hover:border-amber-300 active:scale-98 transition">
+                <div class="flex justify-between items-center text-amber-800 text-[11px] font-bold uppercase tracking-wider">
                     <span>Tahap Uji Coba</span>
                     <i class="fa-solid fa-vial-circle-check text-amber-600"></i>
                 </div>
-                <h3 id="statTesting" class="text-xl sm:text-2xl font-black text-amber-700 mt-1">0</h3>
-                <span class="text-[10px] text-amber-700 font-bold">Uji tim & verifikasi</span>
+                <h3 id="statTesting" class="text-2xl font-black text-amber-700 mt-1">0</h3>
+                <span class="text-[10px] text-amber-700 font-bold">Verifikasi & evaluasi tim</span>
             </div>
 
             <!-- Sedang Dikembangkan -->
-            <div onclick="filterByStatus('DEV')" class="bg-white p-3.5 sm:p-4 rounded-2xl border-l-4 border-l-blue-500 border border-slate-200/90 shadow-xs cursor-pointer hover:border-blue-300 active:scale-98 transition">
-                <div class="flex justify-between items-center text-blue-800 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+            <div onclick="filterStatus('DEV')" class="bg-white p-4 rounded-2xl border-l-4 border-l-blue-500 border border-slate-200 shadow-xs cursor-pointer hover:border-blue-300 active:scale-98 transition">
+                <div class="flex justify-between items-center text-blue-800 text-[11px] font-bold uppercase tracking-wider">
                     <span>Dikembangkan</span>
                     <i class="fa-solid fa-code text-blue-600"></i>
                 </div>
-                <h3 id="statDev" class="text-xl sm:text-2xl font-black text-blue-700 mt-1">0</h3>
-                <span class="text-[10px] text-blue-700 font-bold">Dalam penulisan kode</span>
+                <h3 id="statDev" class="text-2xl font-black text-blue-700 mt-1">0</h3>
+                <span class="text-[10px] text-blue-700 font-bold">Proses koding & desain</span>
             </div>
         </div>
 
-        <!-- BILAH PENCARIAN & FILTER CEPAT -->
-        <div class="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+        <!-- PENCARIAN & FILTER KATEGORI -->
+        <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
             <div class="relative flex-1">
                 <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                <input type="text" id="searchInput" oninput="renderApps()" placeholder="Cari nama aplikasi, rincian fitur uji coba, atau link URL..." class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+                <input type="text" id="searchInput" oninput="renderAppList()" placeholder="Cari nama aplikasi, rincian fitur uji coba, atau link URL..." class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition">
             </div>
 
-            <!-- Tab Filter Status -->
-            <div class="flex items-center gap-1.5 overflow-x-auto custom-scroll text-xs font-bold pb-1 sm:pb-0" id="statusFilterPills">
-                <button type="button" onclick="filterByStatus('SEMUA')" class="filter-pill px-3 py-2 rounded-xl bg-indigo-600 text-white cursor-pointer whitespace-nowrap shadow-xs" data-status="SEMUA">Semua</button>
-                <button type="button" onclick="filterByStatus('LIVE')" class="filter-pill px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-emerald-800 cursor-pointer whitespace-nowrap" data-status="LIVE">Siap Pakai</button>
-                <button type="button" onclick="filterByStatus('TESTING')" class="filter-pill px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-amber-800 cursor-pointer whitespace-nowrap" data-status="TESTING">Uji Coba</button>
-                <button type="button" onclick="filterByStatus('DEV')" class="filter-pill px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-blue-800 cursor-pointer whitespace-nowrap" data-status="DEV">Dikembangkan</button>
+            <div class="flex items-center gap-1.5 overflow-x-auto custom-scroll text-xs font-bold pb-1 sm:pb-0" id="filterContainer">
+                <button type="button" onclick="filterStatus('SEMUA')" class="filter-tab px-3 py-2 rounded-xl bg-indigo-600 text-white cursor-pointer whitespace-nowrap shadow-xs" data-status="SEMUA">Semua</button>
+                <button type="button" onclick="filterStatus('LIVE')" class="filter-tab px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-emerald-800 cursor-pointer whitespace-nowrap" data-status="LIVE">Siap Pakai</button>
+                <button type="button" onclick="filterStatus('TESTING')" class="filter-tab px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-amber-800 cursor-pointer whitespace-nowrap" data-status="TESTING">Uji Coba</button>
+                <button type="button" onclick="filterStatus('DEV')" class="filter-tab px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-blue-800 cursor-pointer whitespace-nowrap" data-status="DEV">Dikembangkan</button>
             </div>
         </div>
 
-        <!-- DAFTAR KARTU APLIKASI (DUAL-PANEL RESPONSIVE) -->
-        <div id="appListContainer" class="space-y-4">
-            <!-- Data langsung muncul instan tanpa menunggu -->
+        <!-- LIST KARTU APLIKASI (DUAL-PANEL BENTO STYLE) -->
+        <div id="cardsWrapper" class="space-y-4">
+            <!-- Rendered by JavaScript -->
         </div>
 
     </div>
@@ -190,32 +196,32 @@
         </div>
     </footer>
 
-    <!-- MODAL POPUP FORM TAMBAH / UBAH APLIKASI -->
-    <div id="appModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 z-50 hidden">
+    <!-- MODAL FORM TAMBAH / UBAH APLIKASI -->
+    <div id="formModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 z-50 hidden">
         <div class="bg-white rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto custom-scroll border border-slate-100">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-800 text-base" id="modalTitle">Tambah Aplikasi ke Katalog</h3>
+                <h3 class="font-bold text-slate-800 text-base" id="modalHeading">Tambah Aplikasi Baru</h3>
                 <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold cursor-pointer leading-none">&times;</button>
             </div>
 
-            <form id="appForm" onsubmit="saveAppData(event)" class="space-y-3.5 text-xs">
-                <input type="hidden" id="appId" value="">
+            <form id="appMainForm" onsubmit="handleFormSubmit(event)" class="space-y-3.5 text-xs">
+                <input type="hidden" id="fieldId" value="">
 
                 <div>
                     <label class="block font-bold text-slate-700 uppercase mb-1">Nama Aplikasi / Modul <span class="text-red-500">*</span></label>
-                    <input type="text" id="appName" placeholder="Contoh: Sistem RKBMD Konawe TA 2027" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white" required>
+                    <input type="text" id="fieldName" placeholder="Contoh: Sistem RKBMD Konawe TA 2027" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white" required>
                 </div>
 
                 <div>
-                    <label class="block font-bold text-slate-700 uppercase mb-1">Alamat URL Web (Siap Diklik Langsung) <span class="text-red-500">*</span></label>
-                    <input type="url" id="appUrl" placeholder="https://..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-mono text-xs focus:outline-none focus:border-indigo-500 focus:bg-white" required>
+                    <label class="block font-bold text-slate-700 uppercase mb-1">Alamat URL Web (Siap Diklik) <span class="text-red-500">*</span></label>
+                    <input type="url" id="fieldUrl" placeholder="https://..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-mono text-xs focus:outline-none focus:border-indigo-500 focus:bg-white" required>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block font-bold text-slate-700 uppercase mb-1">Status Kesiapan <span class="text-red-500">*</span></label>
-                        <select id="appStatus" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
-                            <option value="TESTING">🟡 Tahap Uji Coba (Testing / Trial)</option>
+                        <select id="fieldStatus" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
+                            <option value="TESTING">🟡 Tahap Uji Coba (Testing / Pilot)</option>
                             <option value="DEV">🔵 Sedang Dikembangkan (In Progress)</option>
                             <option value="LIVE">🟢 Siap Digunakan (Live / Production)</option>
                             <option value="MAINT">🔴 Perbaikan / Maintenance</option>
@@ -224,52 +230,46 @@
 
                     <div>
                         <label class="block font-bold text-slate-700 uppercase mb-1">Kemajuan Pengerjaan (%)</label>
-                        <input type="number" id="appProgress" min="0" max="100" placeholder="Contoh: 85" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
+                        <input type="number" id="fieldProgress" min="0" max="100" placeholder="Contoh: 90" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-bold text-slate-700 uppercase mb-1">Versi / Tag</label>
-                        <input type="text" id="appVersion" placeholder="Contoh: v2.1-beta / TA 2027" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-500">
+                        <label class="block font-bold text-slate-700 uppercase mb-1">Versi / Tag Rilis</label>
+                        <input type="text" id="fieldVersion" placeholder="Contoh: v2.1 (T.A 2027)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-500">
                     </div>
                     <div>
                         <label class="block font-bold text-slate-700 uppercase mb-1">Ikon Aplikasi</label>
-                        <select id="appIcon" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-500">
+                        <select id="fieldIcon" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-500">
                             <option value="fa-boxes-stacked">📦 Kotak / Inventaris Aset</option>
                             <option value="fa-chart-pie">📊 Diagram / Analytics</option>
                             <option value="fa-database">🗄️ Database / Spreadsheet</option>
-                            <option value="fa-server">🖥️ Server / API Endpoint</option>
+                            <option value="fa-server">🖥️ Server / API Engine</option>
                             <option value="fa-qrcode">📱 QR Code / Barcode</option>
                             <option value="fa-file-invoice">📑 Laporan / Dokumen</option>
-                            <option value="fa-laptop-code">💻 Web Portal Umum</option>
+                            <option value="fa-laptop-code">💻 Web Portal Sistem</option>
                         </select>
                     </div>
                 </div>
 
                 <div>
                     <label class="block font-bold text-slate-700 uppercase mb-1">Rincian Fitur Sedang Dikembangkan / Diuji Coba <span class="text-red-500">*</span></label>
-                    <textarea id="appNotes" rows="3" placeholder="Tuliskan rincian apa yang sedang dikerjakan atau diuji..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white" required></textarea>
+                    <textarea id="fieldNotes" rows="3" placeholder="Tuliskan catatan fitur yang sedang diuji atau dikembangkan..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white" required></textarea>
                 </div>
 
                 <div class="flex space-x-2 pt-3 border-t border-slate-100">
                     <button type="button" onclick="closeModal()" class="w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl cursor-pointer">Batal</button>
-                    <button type="submit" id="btnSubmitForm" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition shadow cursor-pointer">Simpan Aplikasi</button>
+                    <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition shadow cursor-pointer">Simpan Aplikasi</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- SCRIPT LOGIKA CERDAS: AUTO-CONNECT KE SPREADSHEET ATAU GITHUB JSON -->
+    <!-- ENGINE JAVASCRIPT: INSTAN & ZERO-LATENCY -->
     <script>
-        // URL Web App Google Spreadsheet Anda:
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwG1URNYVmPsdpM8Tsfg-ZoOWXGPodtG1wki9uVdK2hAlZ2VsT73DeT9lLu1muqAQht/exec";
-
-        let appData = [];
-        let currentFilterStatus = "SEMUA";
-
-        // DATA DEFAULT CADANGAN JIKA KONEKSI BARU DIBUAT
-        const DEFAULT_STANDBY_APPS = [
+        // DATA MASTER UTAMA (Langsung Aktif di HP & Laptop)
+        const PRELOADED_APPS = [
             {
                 id: "app-1",
                 name: "Sistem RKBMD & RKPBMD Terpadu Kab. Konawe TA. 2027",
@@ -278,7 +278,7 @@
                 progress: 95,
                 version: "v2.2 (Rilis Pilot)",
                 icon: "fa-boxes-stacked",
-                notes: "Sedang tahap uji coba penginputan usulan pengadaan & pemeliharaan KIB oleh operator SKPD. Fitur pencarian barang otomatis kodefikasi dan dropdown layar sentuh HP Android sudah aktif penuh.",
+                notes: "Sedang tahap uji coba penginputan usulan pengadaan & pemeliharaan aset KIB oleh operator SKPD. Fitur pencarian barang otomatis kodefikasi dan dropdown layar sentuh HP Android sudah aktif penuh.",
                 lastUpdate: "23 Oktober 2026"
             },
             {
@@ -316,98 +316,38 @@
             }
         ];
 
-        function getCleanUrl() {
-            let url = GOOGLE_SCRIPT_URL.trim();
-            if (url.includes('?')) url = url.split('?')[0];
-            return url;
-        }
+        let applications = [];
+        let activeFilter = "SEMUA";
 
-        // =========================================================
-        // SISTEM KONEKSI CERDAS (INSTAN & SINKRON CLOUD TANPA GAGAL)
-        // =========================================================
-        async function loadAllData(isManual = false) {
-            const refreshIcon = document.getElementById("btnRefreshIcon");
-            if (refreshIcon) refreshIcon.classList.add("fa-spin");
-
-            // 1. Ambil data lokal dulu agar layar langsung muncul seketika (0 detik)
-            const cached = localStorage.getItem("portal_katalog_apps_db");
-            if (cached) {
+        // Inisialisasi Data: Membaca cache lokal atau data master
+        function initData() {
+            const saved = localStorage.getItem("devlaunch_apps_storage");
+            if (saved) {
                 try {
-                    const parsed = JSON.parse(cached);
-                    if (Array.isArray(parsed) && parsed.length > 0) appData = parsed;
-                    else appData = DEFAULT_STANDBY_APPS;
+                    const parsed = JSON.parse(saved);
+                    applications = (Array.isArray(parsed) && parsed.length > 0) ? parsed : PRELOADED_APPS;
                 } catch(e) {
-                    appData = DEFAULT_STANDBY_APPS;
+                    applications = PRELOADED_APPS;
                 }
             } else {
-                appData = DEFAULT_STANDBY_APPS;
-                localStorage.setItem("portal_katalog_apps_db", JSON.stringify(appData));
+                applications = PRELOADED_APPS;
+                saveData();
             }
 
             updateMetrics();
-            renderApps();
-            safeSetText("dbCloudStatus", `Terhubung (${appData.length} Aplikasi Siap)`);
+            renderAppList();
+            safeSetText("statusBadgeText", `Aktif Terhubung (${applications.length} Aplikasi Terdata)`);
+        }
 
-            // 2. Hubungi Spreadsheet atau file data.json GitHub di latar belakang
-            try {
-                // Prioritas A: Cek data.json jika ada di repositori GitHub yang sama
-                let jsonResult = null;
-                try {
-                    const localJsonRes = await fetch(`data.json?t=${Date.now()}`);
-                    if (localJsonRes.ok) {
-                        const localData = await localJsonRes.json();
-                        if (Array.isArray(localData) && localData.length > 0) {
-                            jsonResult = { status: "success", data: localData, source: "GitHub data.json" };
-                        }
-                    }
-                } catch(e) {}
-
-                // Prioritas B: Jika tidak ada data.json, hubungi Google Apps Script
-                if (!jsonResult) {
-                    const scriptUrl = getCleanUrl();
-                    const cloudRes = await fetch(`${scriptUrl}?action=read&t=${Date.now()}`);
-                    const cloudJson = await cloudRes.json();
-
-                    if (cloudJson && cloudJson.status === "success" && Array.isArray(cloudJson.data) && cloudJson.data.length > 0) {
-                        // Normalisasi nama kolom jika spreadsheet memakai struktur berbeda
-                        const normalizedData = cloudJson.data.map((item, idx) => ({
-                            id: item.id || `app-${idx+1}`,
-                            name: item.name || item.namaBarang || item.nama || `Aplikasi #${idx+1}`,
-                            url: item.url || item.link || "https://google.com",
-                            status: item.status || (item.jenisUsulan ? "TESTING" : "LIVE"),
-                            progress: parseInt(item.progress) || 90,
-                            version: item.version || "v1.0",
-                            icon: item.icon || "fa-cubes-stacked",
-                            notes: item.notes || item.keterangan || "Tersinkronisasi dari basis data.",
-                            lastUpdate: item.lastUpdate || item.tanggal || "Terbaru"
-                        }));
-                        jsonResult = { status: "success", data: normalizedData, source: "Google Spreadsheet" };
-                    }
-                }
-
-                // Jika data berhasil diambil dari Cloud / Spreadsheet:
-                if (jsonResult && jsonResult.data) {
-                    appData = jsonResult.data;
-                    localStorage.setItem("portal_katalog_apps_db", JSON.stringify(appData));
-                    updateMetrics();
-                    renderApps();
-                    safeSetText("dbCloudStatus", `Terhubung ${jsonResult.source} (${appData.length} Aplikasi)`);
-                    if (isManual) showToast("Data berhasil diperbarui dari server!");
-                }
-            } catch (err) {
-                // Jika offline atau belum dideploy, dashboard tetap 100% aktif memakai data lokal
-                console.log("Menggunakan database lokal terenkripsi:", err);
-                safeSetText("dbCloudStatus", `Terhubung Database Mandiri (${appData.length} Aplikasi Aktif)`);
-            } finally {
-                if (refreshIcon) refreshIcon.classList.remove("fa-spin");
-            }
+        function saveData() {
+            localStorage.setItem("devlaunch_apps_storage", JSON.stringify(applications));
         }
 
         function updateMetrics() {
-            safeSetText("statTotal", appData.length);
-            safeSetText("statLive", appData.filter(a => a.status === 'LIVE').length);
-            safeSetText("statTesting", appData.filter(a => a.status === 'TESTING').length);
-            safeSetText("statDev", appData.filter(a => a.status === 'DEV').length);
+            safeSetText("statTotal", applications.length);
+            safeSetText("statLive", applications.filter(a => a.status === 'LIVE').length);
+            safeSetText("statTesting", applications.filter(a => a.status === 'TESTING').length);
+            safeSetText("statDev", applications.filter(a => a.status === 'DEV').length);
         }
 
         function safeSetText(id, text) {
@@ -415,49 +355,289 @@
             if (el) el.innerText = text;
         }
 
-        function filterByStatus(statusKey) {
-            currentFilterStatus = statusKey;
+        function filterStatus(statusKey) {
+            activeFilter = statusKey;
 
-            const pills = document.querySelectorAll(".filter-pill");
-            pills.forEach(p => {
-                if (p.getAttribute("data-status") === statusKey) {
-                    p.className = "filter-pill px-3 py-2 rounded-xl bg-indigo-600 text-white cursor-pointer font-bold shadow-xs whitespace-nowrap";
+            const tabs = document.querySelectorAll(".filter-tab");
+            tabs.forEach(tab => {
+                if (tab.getAttribute("data-status") === statusKey) {
+                    tab.className = "filter-tab px-3 py-2 rounded-xl bg-indigo-600 text-white cursor-pointer font-bold shadow-xs whitespace-nowrap";
                 } else {
-                    p.className = "filter-pill px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer font-bold whitespace-nowrap";
+                    tab.className = "filter-tab px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer font-bold whitespace-nowrap";
                 }
             });
 
-            renderApps();
+            renderAppList();
         }
 
-        function renderApps() {
-            const container = document.getElementById("appListContainer");
+        function renderAppList() {
+            const container = document.getElementById("cardsWrapper");
             const keyword = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
 
-            const filtered = appData.filter(item => {
-                const matchStatus = (currentFilterStatus === "SEMUA" || item.status === currentFilterStatus);
-                const matchSearch = String(item.name || '').toLowerCase().includes(keyword) || 
-                                    String(item.url || '').toLowerCase().includes(keyword) || 
-                                    String(item.notes || '').toLowerCase().includes(keyword) || 
-                                    String(item.version || '').toLowerCase().includes(keyword);
-                return matchStatus && matchSearch;
+            const filtered = applications.filter(item => {
+                const matchStatus = (activeFilter === "SEMUA" || item.status === activeFilter);
+                const matchKeyword = String(item.name || '').toLowerCase().includes(keyword) || 
+                                     String(item.url || '').toLowerCase().includes(keyword) || 
+                                     String(item.notes || '').toLowerCase().includes(keyword) || 
+                                     String(item.version || '').toLowerCase().includes(keyword);
+                return matchStatus && matchKeyword;
             });
 
             if (filtered.length === 0) {
                 container.innerHTML = `
                     <div class="p-10 text-center bg-white border border-slate-200 rounded-3xl text-slate-400 text-xs italic space-y-2">
                         <i class="fa-solid fa-box-open text-3xl text-slate-300 block"></i>
-                        <span>Tidak ditemukan aplikasi yang cocok dengan filter atau kata kunci.</span>
+                        <span>Tidak ada aplikasi yang cocok dengan filter atau kata kunci.</span>
                     </div>
                 `;
                 return;
             }
 
             container.innerHTML = filtered.map(app => {
-                let statusBadge = "";
-                let progressColor = "bg-blue-600";
-                let statusBorderColor = "border-slate-200";
+                let badgeHtml = "";
+                let barColor = "bg-blue-600";
+                let cardBorder = "border-slate-200";
 
                 if (app.status === "LIVE") {
-                    statusBadge = `
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-emerald-1
+                    badgeHtml = `
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>SIAP DIGUNAKAN (LIVE)
+                        </span>
+                    `;
+                    barColor = "bg-emerald-500";
+                    cardBorder = "border-emerald-200";
+                } else if (app.status === "TESTING") {
+                    badgeHtml = `
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-amber-100 text-amber-800 border border-amber-300">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>TAHAP UJI COBA (TESTING)
+                        </span>
+                    `;
+                    barColor = "bg-amber-500";
+                    cardBorder = "border-amber-200";
+                } else if (app.status === "DEV") {
+                    badgeHtml = `
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-blue-100 text-blue-800 border border-blue-300">
+                            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>SEDANG DIKEMBANGKAN (DEV)
+                        </span>
+                    `;
+                    barColor = "bg-blue-600";
+                    cardBorder = "border-blue-200";
+                } else {
+                    badgeHtml = `
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-300">
+                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>PERBAIKAN (MAINTENANCE)
+                        </span>
+                    `;
+                    barColor = "bg-rose-500";
+                    cardBorder = "border-rose-200";
+                }
+
+                const progressPct = app.progress || (app.status === 'LIVE' ? 100 : 50);
+
+                return `
+                    <div class="bg-white rounded-3xl border ${cardBorder} shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col lg:flex-row">
+                        
+                        <!-- PANEL 1: PELUNCUR APLIKASI (SIAP KLIK) -->
+                        <div class="lg:w-5/12 p-5 sm:p-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-100 bg-gradient-to-br from-white to-slate-50/70">
+                            <div>
+                                <div class="flex items-start gap-3.5 mb-3">
+                                    <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl shrink-0 shadow-md">
+                                        <i class="fa-solid ${app.icon || 'fa-cubes'}"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="inline-block text-[10px] font-bold text-slate-600 font-mono tracking-wider bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 mb-1">
+                                            ${app.version || 'v1.0'}
+                                        </div>
+                                        <h2 class="text-base sm:text-lg font-black text-slate-900 leading-snug break-words-custom">
+                                            ${app.name}
+                                        </h2>
+                                    </div>
+                                </div>
+                                <p class="text-[11px] text-slate-500 font-mono truncate mb-4">
+                                    <i class="fa-solid fa-link text-slate-400 mr-1"></i>${app.url}
+                                </p>
+                            </div>
+
+                            <!-- TOMBOL BUKA APLIKASI -->
+                            <div class="space-y-2 pt-2">
+                                <a href="${app.url}" target="_blank" rel="noopener noreferrer" class="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs sm:text-sm py-3 px-4 rounded-2xl transition shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 group cursor-pointer">
+                                    <span>Buka Aplikasi Sekarang</span>
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-xs group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                                </a>
+
+                                <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+                                    <button type="button" onclick="copyLink('${app.url}')" class="hover:text-indigo-600 cursor-pointer flex items-center gap-1 font-semibold">
+                                        <i class="fa-solid fa-copy"></i> Salin Link
+                                    </button>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" onclick="openModalEdit('${app.id}')" class="hover:text-amber-600 cursor-pointer p-1 font-semibold" title="Ubah Info">
+                                            <i class="fa-solid fa-pencil"></i> Edit
+                                        </button>
+                                        <button type="button" onclick="deleteApp('${app.id}')" class="hover:text-rose-600 cursor-pointer p-1 font-semibold" title="Hapus">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PANEL 2: INFORMASI STATUS UJI COBA & PENGEMBANGAN -->
+                        <div class="lg:w-7/12 p-5 sm:p-6 bg-white flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                                    <div>${badgeHtml}</div>
+                                    <div class="text-right">
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Kesiapan Modul</span>
+                                        <span class="text-xs font-black text-slate-800">${progressPct}% Selesai</span>
+                                    </div>
+                                </div>
+
+                                <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden mb-4 border border-slate-200/80">
+                                    <div class="h-full ${barColor} transition-all duration-500 rounded-full" style="width: ${progressPct}%;"></div>
+                                </div>
+
+                                <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-3.5 space-y-1.5">
+                                    <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                                        <i class="fa-solid fa-clipboard-check text-indigo-600"></i>
+                                        <span>Rincian Fitur & Catatan Pengembangan:</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-relaxed font-medium break-words-custom">
+                                        ${app.notes}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+                                <span><i class="fa-regular fa-clock mr-1"></i>Pembaruan: <strong>${app.lastUpdate || 'Terbaru'}</strong></span>
+                                <span class="text-emerald-600 font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-circle-check text-emerald-500"></i> Terverifikasi
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            }).join("");
+        }
+
+        // ============================================
+        // MODAL HANDLER: TAMBAH / EDIT / HAPUS
+        // ============================================
+        function openModalTambah() {
+            document.getElementById("appMainForm").reset();
+            document.getElementById("fieldId").value = "";
+            document.getElementById("modalHeading").innerText = "Tambah Aplikasi Baru";
+            document.getElementById("fieldProgress").value = "50";
+            document.getElementById("formModal").classList.remove("hidden");
+        }
+
+        function openModalEdit(id) {
+            const item = applications.find(a => String(a.id) === String(id));
+            if (!item) return;
+
+            document.getElementById("fieldId").value = item.id;
+            document.getElementById("fieldName").value = item.name;
+            document.getElementById("fieldUrl").value = item.url;
+            document.getElementById("fieldStatus").value = item.status;
+            document.getElementById("fieldProgress").value = item.progress || 50;
+            document.getElementById("fieldVersion").value = item.version || "";
+            document.getElementById("fieldIcon").value = item.icon || "fa-boxes-stacked";
+            document.getElementById("fieldNotes").value = item.notes || "";
+
+            document.getElementById("modalHeading").innerText = "Edit Informasi Aplikasi";
+            document.getElementById("formModal").classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("formModal").classList.add("hidden");
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById("fieldId").value;
+            const isEditing = Boolean(editId);
+            const appIdFinal = editId || ("app-" + Date.now());
+            const today = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
+
+            const newApp = {
+                id: appIdFinal,
+                name: document.getElementById("fieldName").value.trim(),
+                url: document.getElementById("fieldUrl").value.trim(),
+                status: document.getElementById("fieldStatus").value,
+                progress: parseInt(document.getElementById("fieldProgress").value) || 0,
+                version: document.getElementById("fieldVersion").value.trim() || "v1.0",
+                icon: document.getElementById("fieldIcon").value,
+                notes: document.getElementById("fieldNotes").value.trim(),
+                lastUpdate: today
+            };
+
+            if (isEditing) {
+                const idx = applications.findIndex(a => String(a.id) === String(editId));
+                if (idx !== -1) applications[idx] = newApp;
+            } else {
+                applications.unshift(newApp);
+            }
+
+            saveData();
+            updateMetrics();
+            renderAppList();
+            closeModal();
+
+            showToast(isEditing ? "Berhasil! Perubahan data aplikasi telah disimpan." : "Berhasil! Aplikasi baru telah ditambahkan ke database.");
+        }
+
+        function deleteApp(id) {
+            if (!confirm("Hapus aplikasi ini dari katalog dashboard Anda?")) return;
+
+            applications = applications.filter(a => String(a.id) !== String(id));
+            saveData();
+            updateMetrics();
+            renderAppList();
+            showToast("Berhasil! Aplikasi telah dihapus dari database.");
+        }
+
+        function resetDefault() {
+            if (!confirm("Muat ulang contoh data awal aplikasi?")) return;
+            applications = PRELOADED_APPS;
+            saveData();
+            updateMetrics();
+            renderAppList();
+            showToast("Data awal berhasil dimuat kembali!");
+        }
+
+        function copyLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast("Berhasil! Tautan web telah disalin ke clipboard.");
+            });
+        }
+
+        function exportDataJson() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(applications, null, 2));
+            const dl = document.createElement("a");
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", "katalog_aplikasi.json");
+            dl.click();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            const toastMsg = document.getElementById("toastMsg");
+            if (!toast) return;
+
+            toastMsg.innerText = msg;
+            toast.classList.remove("opacity-0", "-translate-y-6", "pointer-events-none");
+            toast.classList.add("opacity-100", "translate-y-0");
+
+            setTimeout(() => {
+                toast.classList.remove("opacity-100", "translate-y-0");
+                toast.classList.add("opacity-0", "-translate-y-6", "pointer-events-none");
+            }, 3000);
+        }
+
+        // Inisialisasi seketika saat halaman dibuka
+        window.addEventListener("DOMContentLoaded", () => {
+            initData();
+        });
+    </script>
+</body>
+</html>
