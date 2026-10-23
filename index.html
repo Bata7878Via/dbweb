@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+    
+    <title>Portal Monitoring & Katalog Aplikasi - Irman_Aset</title>
+
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icon CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            color-scheme: light !important;
+        }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        @media screen and (max-width: 768px) {
+            input, select, textarea {
+                font-size: 15px !important;
+            }
+        }
+        .custom-scroll::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .break-words-custom {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body class="p-3 sm:p-5 md:p-8 min-h-screen pb-16 flex flex-col justify-between">
+
+    <!-- NOTIFIKASI TOAST -->
+    <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 backdrop-blur-md text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-4 flex items-center gap-2.5 border border-slate-700">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+        <span id="toastMsg">Tautan berhasil disalin!</span>
+    </div>
+
+    <div class="max-w-6xl mx-auto w-full space-y-5 sm:space-y-6">
+
+        <!-- HEADER DASHBOARD UTAMA -->
+        <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-900 text-white rounded-3xl p-5 sm:p-8 shadow-xl border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 relative overflow-hidden">
+            <div class="absolute -top-16 -left-16 w-44 h-44 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -right-16 w-44 h-44 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-1.5">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-300 text-[11px] font-bold border border-blue-400/30">
+                        <i class="fa-brands fa-github text-white"></i> GitHub Pages Live
+                    </span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 text-[11px] font-bold border border-emerald-400/30">
+                        <i class="fa-solid fa-table text-emerald-400"></i> Google Spreadsheet Sync
+                    </span>
+                </div>
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-white">
+                    Katalog Aplikasi & Monitoring Rilis Sistem
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                    Pusat monitoring aplikasi pengembangan. Klik tombol aplikasi untuk membuka web, serta pantau status uji coba fitur secara real-time.
+                </p>
+            </div>
+
+            <div class="relative z-10 flex items-center gap-2 w-full md:w-auto">
+                <button type="button" onclick="openModalTambah()" class="flex-1 md:flex-none justify-center bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 text-xs sm:text-sm font-bold px-4 py-3 rounded-2xl shadow-lg transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                    <i class="fa-solid fa-plus-circle text-base"></i> Tambah Aplikasi
+                </button>
+                <button type="button" onclick="loadAppDataFromCloud()" class="bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs px-3.5 py-3 rounded-2xl transition border border-white/20 cursor-pointer" title="Segarkan Data dari Spreadsheet">
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- STATUS SERVER CLOUD -->
+        <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-slate-500 font-semibold">Status Basis Data:</span>
+                <span id="dbCloudStatus" class="font-bold text-slate-800">Menghubungkan ke Spreadsheet...</span>
+            </div>
+            <div class="text-[11px] text-slate-500">
+                <i class="fa-solid fa-cloud-arrow-up text-blue-600 mr-1"></i> Sinkronisasi Dua Arah Otomatis
+            </div>
+        </div>
+
+        <!-- KARTU METRIK RINGKASAN STATUS -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+            <div onclick="filterByStatus('SEMUA')" class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 shadow-xs cursor-pointer hover:border-slate-400 active:scale-98 transition">
+                <div class="flex justify-between items-center text-slate-500 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                    <span>Total Aplikasi</span>
+                    <i class="fa-solid fa-layer-group text-slate-400"></i>
+                </div>
+                <h3 id="statTotal" class="text-xl sm:text-2xl font-black text-slate-900 mt-1">0</h3>
+                <span class="text-[10px] text-slate-500 font-semibold">Tersedia di portal</span>
+            </div>
+
+            <div onclick="filterByStatus('LIVE')" class="bg-white p-3.5 sm:p-4 rounded-2xl border-l-4 border-l-emerald-500 border border-slate-200/90 shadow-xs cursor-pointer hover:border-emerald-300 active:scale-98 transition">
+                <div class="flex justify-between items-center text-emerald-800 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                    <span>Siap Pakai (Live)</span>
+                    <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                </div>
+                <h3 id="statLive" class="text-xl sm:text-2xl font-black text-emerald-700 mt-1">0</h3>
+                <span class="text-[10px] text-emerald-700 font-bold">Produksi & stabil</span>
+            </div>
+
+            <div onclick="filterByStatus('TESTING')" class="bg-white p-3.5 sm:p-4 rounded-2xl border-l-4 border-l-amber-500 border border-slate-200/90 shadow-xs cursor-pointer hover:border-amber-300 active:scale-98 transition">
+                <div class="flex justify-between items-center text-amber-800 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                    <span>Tahap Uji Coba</span>
+                    <i class="fa-solid fa-vial-circle-check text-amber-600"></i>
+                </div>
+                <h3 id="statTesting" class="text-xl sm:text-2xl font-black text-amber-700 mt-1">0</h3>
+                <span class="text-[10px] text-amber-700 font-bold">Uji coba tim</span>
+            </div>
+
+            <div onclick="filterByStatus('DEV')" class="bg-white p-3.5 sm:p-4 rounded-2xl border-l-4 border-l-blue-500 border border-slate-200/90 shadow-xs cursor-pointer hover:border-blue-300 active:scale-98 transition">
+                <div class="flex justify-between items-center text-blue-800 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                    <span>Dikembangkan</span>
+                    <i class="fa-solid fa-code text-blue-600"></i>
+                </div>
+                <h3 id="statDev" class="text-xl sm:text-2xl font-black text-blue-700 mt-1">0</h3>
+                <span class="text-[10px] text-blue-700 font-bold">Dalam penulisan kode</span>
+            </div>
+        </div>
+
+        <!-- BILAH PENCARIAN & FILTER CEPAT -->
+        <div class="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+            <div class="relative flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="searchInput" oninput="renderApps()" placeholder="Cari aplikasi, fitur yang sedang diuji, atau URL..." class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+            </div>
+
+            <div class="flex items-center gap-1.5 overflow-x-auto custom-scroll text-xs font-bold pb-1 sm:pb-0" id="statusFilterPills">
+                <button type="button" onclick="filterByStatus('SEMUA')" class="filter-pill px-3 py-2 rounded-xl bg-indigo-600 text-white cursor-pointer whitespace-nowrap shadow-xs" data-status="SEMUA">Semua</button>
+                <button type="button" onclick="filterByStatus('LIVE')" class="filter-pill px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-emerald-800 cursor-pointer whitespace-nowrap" data-status="LIVE">Siap Pakai</button>
+                <button type="button" onclick="filterByStatus('TESTING')" class="filter-pill px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-amber-800 cursor-pointer whitespace-nowrap" data-status="TESTING">Uji Coba</button>
+                <button type="button" onclick="filterByStatus('DEV')" class="filter-pill px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-blue-800 cursor-pointer whitespace-nowrap" data-status="DEV">Dikembangkan</button>
+            </div>
+        </div>
+
+        <!-- DAFTAR KARTU APLIKASI -->
+        <div id="appListContainer" class="space-y-4">
+            <div class="p-10 text-center bg-white border border-slate-200 rounded-3xl text-slate-400 text-xs italic">
+                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengambil data aplikasi dari Google Spreadsheet...
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FOOTER WATERMARK -->
+    <footer class="max-w-6xl mx-auto w-full mt-10 pt-4 border-t border-slate-200/80">
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col sm:flex-row justify-between items-center gap-2 text-center sm:text-left">
+            <div class="space-y-0.5">
+                <p class="text-xs sm:text-sm font-bold text-slate-800">
+                    &copy;Copyright 2026 <span class="text-blue-700 font-black">Irman_Aset</span>. All rights reserved
+                </p>
+                <p class="text-[11px] text-slate-500">
+                    Sistem Manajemen Perencanaan & Pengawasan Aset Daerah Terpadu
+                </p>
+            </div>
+            <div class="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200">
+                    <i class="fa-solid fa-mobile-screen text-blue-600"></i> HP Android
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200">
+                    <i class="fa-solid fa-laptop text-indigo-600"></i> Laptop / PC
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL FORM TAMBAH / UBAH APLIKASI -->
+    <div id="appModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 z-50 hidden">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto custom-scroll border border-slate-100">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-800 text-base" id="modalTitle">Tambah Aplikasi ke Katalog</h3>
+                <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold cursor-pointer leading-none">&times;</button>
+            </div>
+
+            <form id="appForm" onsubmit="saveAppData(event)" class="space-y-3.5 text-xs">
+                <input type="hidden" id="appId" value="">
+
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase mb-1">Nama Aplikasi / Modul <span class="text-red-500">*</span></label>
+                    <input type="text" id="appName" placeholder="Contoh: Sistem RKBMD Konawe TA 2027" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white" required>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase mb-1">Alamat URL Web (Siap Diklik Langsung) <span class="text-red-500">*</span></label>
+                    <input type="url" id="appUrl" placeholder="https://script.google.com/... atau https://..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-mono text-xs focus:outline-none focus:border-indigo-500 focus:bg-white" required>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase mb-1">Status Kesiapan <span class="text-red-500">*</span></label>
+                        <select id="appStatus" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
+                            <option value="TESTING">🟡 Tahap Uji Coba (Testing / Trial)</option>
+                            <option value="DEV">🔵 Sedang Dikembangkan (In Progress)</option>
+                            <option value="LIVE">🟢 Siap Digunakan (Live / Production)</option>
+                            <option value="MAINT">🔴 Perbaikan / Maintenance</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase mb-1">Kemajuan Pengerjaan (%)</label>
+                        <input type="number" id="appProgress" min="0" max="100" placeholder="Contoh: 85" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase mb-1">Versi / Tag</label>
+                        <input type="text" id="appVersion" placeholder="Contoh: v2.1-beta / TA 2027" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase mb-1">Ikon Aplikasi</label>
+                        <select id="appIcon" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-indigo-500">
+                            <option value="fa-boxes-stacked">📦 Kotak / Inventaris Aset</option>
+                            <option value="fa-chart-pie">📊 Diagram / Analytics</option>
+                            <option value="fa-database">🗄️ Database / Spreadsheet</option>
+                            <option value="fa-server">🖥️ Server / API Endpoint</option>
+                            <option value="fa-qrcode">📱 QR Code / Barcode</option>
+                            <option value="fa-file-invoice">📑 Laporan / Dokumen</option>
+                            <option value="fa-laptop-code">💻 Web Portal Umum</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase mb-1">Rincian Fitur Sedang Dikembangkan / Diuji Coba <span class="text-red-500">*</span></label>
+                    <textarea id="appNotes" rows="3" placeholder="Tuliskan keterangan apa yang sedang diuji atau dikembangkan..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white" required></textarea>
+                </div>
+
+                <div class="flex space-x-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal()" class="w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl cursor-pointer">Batal</button>
+                    <button type="submit" id="btnSubmitForm" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition shadow cursor-pointer">Simpan Aplikasi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC DENGAN KONEKSI GOOGLE SPREADSHEET -->
+    <script>
+        // MASUKKAN URL HASIL DEPLOY APPS SCRIPT ANDA DI SINI:
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwG1URNYVmPsdpM8Tsfg-ZoOWXGPodtG1wki9uVdK2hAlZ2VsT73DeT9lLu1muqAQht/exec";
+
+        let appData = [];
+        let currentFilterStatus = "SEMUA";
+
+        function getCleanUrl() {
+            let url = GOOGLE_SCRIPT_URL.trim();
+            if (url.includes('?')) url = url.split('?')[0];
+            return url;
+        }
+
+        // AMBIL DATA DARI GOOGLE SPREADSHEET
+        async function loadAppDataFromCloud() {
+            safeSetText("dbCloudStatus", "Menghubungkan ke Spreadsheet...");
+            const url = getCleanUrl();
+
+            try {
+                const res = await fetch(`${url}?action=read`);
+                const json = await res.json();
+                
+                if (json.status === "success" && Array.isArray(json.data)) {
+                    appData = json.data;
+                    localStorage.setItem("portal_backup_local", JSON.stringify(appData));
+                    safeSetText("dbCloudStatus", `Terhubung (${appData.length} Aplikasi Terdata)`);
+                } else {
+                    fallbackToLocalStorage();
+                }
+            } catch (err) {
+                console.warn("Gagal terhubung ke cloud, memuat cadangan lokal:", err);
+                fallbackToLocalStorage();
+                safeSetText("dbCloudStatus", "Mode Cadangan Lokal (Offline/CORS)");
+            }
+
+            updateMetrics();
+            renderApps();
+        }
+
+        function fallbackToLocalStorage() {
+            const saved = localStorage.getItem("portal_backup_local");
+            if (saved) {
+                try { appData = JSON.parse(saved); } catch(e) {}
+            }
+        }
+
+        function updateMetrics() {
+            safeSetText("statTotal", appData.length);
+            safeSetText("statLive", appData.filter(a => a.status === 'LIVE').length);
+            safeSetText("statTesting", appData.filter(a => a.status === 'TESTING').length);
+            safeSetText("statDev", appData.filter(a => a.status === 'DEV').length);
+        }
+
+        function safeSetText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = text;
+        }
+
+        function filterByStatus(statusKey) {
+            currentFilterStatus = statusKey;
+
+            const pills = document.querySelectorAll(".filter-pill");
+            pills.forEach(p => {
+                if (p.getAttribute("data-status") === statusKey) {
+                    p.className = "filter-pill px-3 py-2 rounded-xl bg-indigo-600 text-white cursor-pointer font-bold shadow-xs whitespace-nowrap";
+                } else {
+                    p.className = "filter-pill px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer font-bold whitespace-nowrap";
+                }
+            });
+
+            renderApps();
+        }
+
+        function renderApps() {
+            const container = document.getElementById("appListContainer");
+            const keyword = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
+
+            const filtered = appData.filter(item => {
+                const matchStatus = (currentFilterStatus === "SEMUA" || item.status === currentFilterStatus);
+                const matchSearch = String(item.name || '').toLowerCase().includes(keyword) || 
+                                    String(item.url || '').toLowerCase().includes(keyword) || 
+                                    String(item.notes || '').toLowerCase().includes(keyword) || 
+                                    String(item.version || '').toLowerCase().includes(keyword);
+                return matchStatus && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="p-10 text-center bg-white border border-slate-200 rounded-3xl text-slate-400 text-xs italic space-y-2">
+                        <i class="fa-solid fa-box-open text-3xl text-slate-300 block"></i>
+                        <span>Tidak ditemukan aplikasi yang cocok dengan filter atau kata kunci.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(app => {
+                let statusBadge = "";
+                let progressColor = "bg-blue-600";
+                let statusBorderColor = "border-slate-200";
+
+                if (app.status === "LIVE") {
+                    statusBadge = `
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>SIAP DIGUNAKAN (LIVE)
+                        </span>
+                    `;
+                    progressColor = "bg-emerald-500";
+                    statusBorderColor = "border-emerald-200";
+                } else if (app.status === "TESTING") {
+                    statusBadge = `
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-amber-100 text-amber-800 border border-amber-300">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>TAHAP UJI COBA (TESTING)
+                        </span>
+                    `;
+                    progressColor = "bg-amber-500";
+                    statusBorderColor = "border-amber-200";
+                } else if (app.status === "DEV") {
+                    statusBadge = `
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-blue-100 text-blue-800 border border-blue-300">
+                            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>SEDANG DIKEMBANGKAN (DEV)
+                        </span>
+                    `;
+                    progressColor = "bg-blue-600";
+                    statusBorderColor = "border-blue-200";
+                } else {
+                    statusBadge = `
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-300">
+                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>DALAM PERBAIKAN
+                        </span>
+                    `;
+                    progressColor = "bg-rose-500";
+                    statusBorderColor = "border-rose-200";
+                }
+
+                const pct = app.progress || (app.status === 'LIVE' ? 100 : 50);
+
+                return `
+                    <div class="bg-white rounded-3xl border ${statusBorderColor} shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col lg:flex-row">
+                        
+                        <!-- PANEL KIRI: PELUNCUR APLIKASI (SIAP KLIK LANGSUNG MEMBUKA WEB) -->
+                        <div class="lg:w-5/12 p-5 sm:p-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-100 bg-gradient-to-br from-white to-slate-50/70">
+                            <div>
+                                <div class="flex items-start gap-3.5 mb-3">
+                                    <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl shrink-0 shadow-md">
+                                        <i class="fa-solid ${app.icon || 'fa-cubes'}"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="inline-block text-[10px] font-bold text-slate-600 font-mono tracking-wider bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 mb-1">
+                                            ${app.version || 'v1.0'}
+                                        </div>
+                                        <h2 class="text-base sm:text-lg font-black text-slate-900 leading-snug break-words-custom">
+                                            ${app.name}
+                                        </h2>
+                                    </div>
+                                </div>
+                                <p class="text-[11px] text-slate-500 font-mono truncate mb-4">
+                                    <i class="fa-solid fa-link text-slate-400 mr-1"></i>${app.url}
+                                </p>
+                            </div>
+
+                            <!-- TOMBOL UTAMA BUKA WEB -->
+                            <div class="space-y-2 pt-2">
+                                <a href="${app.url}" target="_blank" rel="noopener noreferrer" class="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs sm:text-sm py-3 px-4 rounded-2xl transition shadow-md shadow-indigo-600/20 flex items-center justify-center gap-2 group cursor-pointer">
+                                    <span>Buka Aplikasi Sekarang</span>
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-xs group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                                </a>
+
+                                <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+                                    <button type="button" onclick="copyLink('${app.url}')" class="hover:text-indigo-600 cursor-pointer flex items-center gap-1 font-semibold">
+                                        <i class="fa-solid fa-copy"></i> Salin Link
+                                    </button>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" onclick="openModalEdit('${app.id}')" class="hover:text-amber-600 cursor-pointer p-1 font-semibold" title="Ubah Info">
+                                            <i class="fa-solid fa-pencil"></i> Edit
+                                        </button>
+                                        <button type="button" onclick="deleteApp('${app.id}')" class="hover:text-rose-600 cursor-pointer p-1 font-semibold" title="Hapus">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PANEL KANAN: STATUS INFORMASI PENGEMBANGAN / UJI COBA -->
+                        <div class="lg:w-7/12 p-5 sm:p-6 bg-white flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                                    <div>${statusBadge}</div>
+                                    <div class="text-right">
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Kesiapan Modul</span>
+                                        <span class="text-xs font-black text-slate-800">${pct}% Selesai</span>
+                                    </div>
+                                </div>
+
+                                <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden mb-4 border border-slate-200/80">
+                                    <div class="h-full ${progressColor} transition-all duration-500 rounded-full" style="width: ${pct}%;"></div>
+                                </div>
+
+                                <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-3.5 space-y-1.5">
+                                    <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                                        <i class="fa-solid fa-clipboard-check text-indigo-600"></i>
+                                        <span>Rincian Fitur & Catatan Pengembangan:</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-relaxed font-medium break-words-custom">
+                                        ${app.notes}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+                                <span><i class="fa-regular fa-clock mr-1"></i>Pembaruan: <strong>${app.lastUpdate || 'Terbaru'}</strong></span>
+                                <span class="text-emerald-600 font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-cloud-check text-emerald-500"></i> Terhubung Cloud
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            }).join("");
+        }
+
+        // ============================================
+        // MODAL & SIMPAN DATA KE SPREADSHEET
+        // ============================================
+        function openModalTambah() {
+            document.getElementById("appForm").reset();
+            document.getElementById("appId").value = "";
+            document.getElementById("modalTitle").innerText = "Tambah Aplikasi ke Katalog";
+            document.getElementById("appProgress").value = "50";
+            document.getElementById("appModal").classList.remove("hidden");
+        }
+
+        function openModalEdit(id) {
+            const item = appData.find(a => String(a.id) === String(id));
+            if (!item) return;
+
+            document.getElementById("appId").value = item.id;
+            document.getElementById("appName").value = item.name;
+            document.getElementById("appUrl").value = item.url;
+            document.getElementById("appStatus").value = item.status;
+            document.getElementById("appProgress").value = item.progress || 50;
+            document.getElementById("appVersion").value = item.version || "";
+            document.getElementById("appIcon").value = item.icon || "fa-boxes-stacked";
+            document.getElementById("appNotes").value = item.notes || "";
+
+            document.getElementById("modalTitle").innerText = "Edit Informasi Aplikasi";
+            document.getElementById("appModal").classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("appModal").classList.add("hidden");
+        }
+
+        async function saveAppData(e) {
+            e.preventDefault();
+            const editId = document.getElementById("appId").value;
+            const actionType = editId ? "update" : "create";
+            const appIdFinal = editId || ("app-" + Date.now());
+            const today = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' });
+
+            const payload = {
+                action: actionType,
+                id: appIdFinal,
+                name: document.getElementById("appName").value.trim(),
+                url: document.getElementById("appUrl").value.trim(),
+                status: document.getElementById("appStatus").value,
+                progress: parseInt(document.getElementById("appProgress").value) || 0,
+                version: document.getElementById("appVersion").value.trim() || "v1.0",
+                icon: document.getElementById("appIcon").value,
+                notes: document.getElementById("appNotes").value.trim(),
+                lastUpdate: today
+            };
+
+            const btn = document.getElementById("btnSubmitForm");
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan ke Cloud...`;
+
+            try {
+                await fetch(getCleanUrl(), {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+
+                closeModal();
+                showToast("Aplikasi berhasil disimpan ke Spreadsheet!");
+                await new Promise(r => setTimeout(r, 1200));
+                await loadAppDataFromCloud();
+            } catch (err) {
+                showToast("Gagal menyimpan ke Spreadsheet: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `Simpan Aplikasi`;
+            }
+        }
+
+        async function deleteApp(id) {
+            if (!confirm("Hapus aplikasi ini dari database Spreadsheet?")) return;
+
+            showToast("Menghapus dari cloud...");
+            try {
+                await fetch(getCleanUrl(), {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: "delete", id: id })
+                });
+
+                showToast("Aplikasi telah dihapus!");
+                await new Promise(r => setTimeout(r, 1200));
+                await loadAppDataFromCloud();
+            } catch (err) {
+                showToast("Gagal menghapus: " + err.message);
+            }
+        }
+
+        function copyLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast("Tautan web berhasil disalin ke clipboard!");
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            const toastMsg = document.getElementById("toastMsg");
+            if (!toast) return;
+
+            toastMsg.innerText = msg;
+            toast.classList.remove("opacity-0", "-translate-y-4", "pointer-events-none");
+            toast.classList.add("opacity-100", "translate-y-0");
+
+            setTimeout(() => {
+                toast.classList.remove("opacity-100", "translate-y-0");
+                toast.classList.add("opacity-0", "-translate-y-4", "pointer-events-none");
+            }, 2500);
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            loadAppDataFromCloud();
+        });
+    </script>
+</body>
+</html>
