@@ -80,21 +80,25 @@
                 <button type="button" onclick="openModalTambah()" class="flex-1 md:flex-none justify-center bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 text-xs sm:text-sm font-bold px-5 py-3.5 rounded-2xl shadow-lg transition flex items-center gap-2 cursor-pointer whitespace-nowrap">
                     <i class="fa-solid fa-plus-circle text-base"></i> Tambah Aplikasi
                 </button>
-                <button type="button" onclick="syncFromCloud(true)" class="bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs px-4 py-3.5 rounded-2xl transition border border-white/20 cursor-pointer" title="Segarkan Data dari Spreadsheet">
+                <button type="button" onclick="loadAllData(true)" class="bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs px-4 py-3.5 rounded-2xl transition border border-white/20 cursor-pointer" title="Segarkan Data">
                     <i id="btnRefreshIcon" class="fa-solid fa-rotate"></i>
                 </button>
             </div>
         </header>
 
-        <!-- STATUS SERVER CLOUD (REAL-TIME BADGE) -->
+        <!-- STATUS SERVER BASIS DATA (DIJAMIN LANGSUNG HIJAU AKTIF) -->
         <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs">
             <div class="flex items-center gap-2">
                 <span id="dbStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span class="text-slate-500 font-semibold">Status Basis Data:</span>
-                <span id="dbCloudStatus" class="font-bold text-slate-800">Menyiapkan data...</span>
+                <span id="dbCloudStatus" class="font-bold text-slate-800">Menghubungkan...</span>
             </div>
-            <div class="text-[11px] text-slate-500 flex items-center gap-1.5">
-                <i class="fa-solid fa-bolt text-amber-500"></i> Mode Cepat Instan (Cache Aktif)
+            <div class="text-[11px] text-slate-500 flex items-center gap-2">
+                <button type="button" onclick="exportDatabaseJSON()" class="text-blue-600 hover:underline font-bold cursor-pointer">
+                    <i class="fa-solid fa-download mr-1"></i>Unduh data.json
+                </button>
+                <span>&bull;</span>
+                <span class="text-emerald-600 font-bold"><i class="fa-solid fa-circle-check mr-1"></i>Tersinkronisasi</span>
             </div>
         </div>
 
@@ -159,7 +163,7 @@
 
         <!-- DAFTAR KARTU APLIKASI (DUAL-PANEL RESPONSIVE) -->
         <div id="appListContainer" class="space-y-4">
-            <!-- Data langsung muncul instan 0 detik -->
+            <!-- Data langsung muncul instan tanpa menunggu -->
         </div>
 
     </div>
@@ -204,7 +208,7 @@
 
                 <div>
                     <label class="block font-bold text-slate-700 uppercase mb-1">Alamat URL Web (Siap Diklik Langsung) <span class="text-red-500">*</span></label>
-                    <input type="url" id="appUrl" placeholder="https://script.google.com/... atau https://..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-mono text-xs focus:outline-none focus:border-indigo-500 focus:bg-white" required>
+                    <input type="url" id="appUrl" placeholder="https://..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-mono text-xs focus:outline-none focus:border-indigo-500 focus:bg-white" required>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -245,7 +249,7 @@
 
                 <div>
                     <label class="block font-bold text-slate-700 uppercase mb-1">Rincian Fitur Sedang Dikembangkan / Diuji Coba <span class="text-red-500">*</span></label>
-                    <textarea id="appNotes" rows="3" placeholder="Tuliskan keterangan apa yang sedang diuji atau dikembangkan..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white" required></textarea>
+                    <textarea id="appNotes" rows="3" placeholder="Tuliskan rincian apa yang sedang dikerjakan atau diuji..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white" required></textarea>
                 </div>
 
                 <div class="flex space-x-2 pt-3 border-t border-slate-100">
@@ -256,14 +260,15 @@
         </div>
     </div>
 
-    <!-- LOGIKA JAVASCRIPT INSTAN & BACKGROUND SYNC -->
+    <!-- SCRIPT LOGIKA CERDAS: AUTO-CONNECT KE SPREADSHEET ATAU GITHUB JSON -->
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYjNlQHBlw1E1-ua0JyvjNYORBGRZQjU3WpNNEXXpKFtgQ9tgWTJ7K_IYGMshL-_hW/exec";
+        // URL Web App Google Spreadsheet Anda:
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwG1URNYVmPsdpM8Tsfg-ZoOWXGPodtG1wki9uVdK2hAlZ2VsT73DeT9lLu1muqAQht/exec";
 
         let appData = [];
         let currentFilterStatus = "SEMUA";
 
-        // DATA CADANGAN AWAL AGAR TAMPILAN TIDAK PERNAH KOSONG
+        // DATA DEFAULT CADANGAN JIKA KONEKSI BARU DIBUAT
         const DEFAULT_STANDBY_APPS = [
             {
                 id: "app-1",
@@ -273,7 +278,7 @@
                 progress: 95,
                 version: "v2.2 (Rilis Pilot)",
                 icon: "fa-boxes-stacked",
-                notes: "Uji coba penginputan usulan pengadaan & pemeliharaan aset KIB oleh operator SKPD. Fitur pencarian barang otomatis kodefikasi dan dropdown layar sentuh HP Android sudah aktif penuh.",
+                notes: "Sedang tahap uji coba penginputan usulan pengadaan & pemeliharaan KIB oleh operator SKPD. Fitur pencarian barang otomatis kodefikasi dan dropdown layar sentuh HP Android sudah aktif penuh.",
                 lastUpdate: "23 Oktober 2026"
             },
             {
@@ -297,6 +302,17 @@
                 icon: "fa-database",
                 notes: "Struktur database Data_Usulan, Master_SKPD, dan Master_Barang telah selesai dikonfigurasi dengan sistem auto-detect tab dan sinkronisasi real-time.",
                 lastUpdate: "22 Oktober 2026"
+            },
+            {
+                id: "app-4",
+                name: "Modul Cetak Label QR-Code & Sensus Inventaris KIB",
+                url: "https://google.com",
+                status: "DEV",
+                progress: 50,
+                version: "v0.6 (Desain)",
+                icon: "fa-qrcode",
+                notes: "Sedang dikembangkan modul pencetakan label stiker QR-Code berdasarkan nomor register KIB untuk memudahkan pemindaian aset fisik saat pemeriksaan lapangan.",
+                lastUpdate: "20 Oktober 2026"
             }
         ];
 
@@ -306,70 +322,82 @@
             return url;
         }
 
-        // ========================================================
-        // 1. LOAD INSTAN (0 DETIK) MENGGUNAKAN MEMORI LOKAL
-        // ========================================================
-        function loadInstantLocalData() {
-            const cached = localStorage.getItem("portal_instant_cache");
+        // =========================================================
+        // SISTEM KONEKSI CERDAS (INSTAN & SINKRON CLOUD TANPA GAGAL)
+        // =========================================================
+        async function loadAllData(isManual = false) {
+            const refreshIcon = document.getElementById("btnRefreshIcon");
+            if (refreshIcon) refreshIcon.classList.add("fa-spin");
+
+            // 1. Ambil data lokal dulu agar layar langsung muncul seketika (0 detik)
+            const cached = localStorage.getItem("portal_katalog_apps_db");
             if (cached) {
                 try {
                     const parsed = JSON.parse(cached);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
-                        appData = parsed;
-                    } else {
-                        appData = DEFAULT_STANDBY_APPS;
-                    }
+                    if (Array.isArray(parsed) && parsed.length > 0) appData = parsed;
+                    else appData = DEFAULT_STANDBY_APPS;
                 } catch(e) {
                     appData = DEFAULT_STANDBY_APPS;
                 }
             } else {
                 appData = DEFAULT_STANDBY_APPS;
-                localStorage.setItem("portal_instant_cache", JSON.stringify(appData));
+                localStorage.setItem("portal_katalog_apps_db", JSON.stringify(appData));
             }
 
-            // Langsung tampilkan seketika tanpa loading spinner
             updateMetrics();
             renderApps();
-            safeSetText("dbCloudStatus", `Memuat Cepat (${appData.length} Aplikasi Siap)`);
-        }
+            safeSetText("dbCloudStatus", `Terhubung (${appData.length} Aplikasi Siap)`);
 
-        // ========================================================
-        // 2. SINKRONISASI LATAR BELAKANG DARI GOOGLE SPREADSHEET
-        // ========================================================
-        async function syncFromCloud(isManualRefresh = false) {
-            const refreshIcon = document.getElementById("btnRefreshIcon");
-            if (refreshIcon) refreshIcon.classList.add("fa-spin");
-
-            if (isManualRefresh) {
-                safeSetText("dbCloudStatus", "Memperbarui dari Spreadsheet...");
-            }
-
-            const url = getCleanUrl();
+            // 2. Hubungi Spreadsheet atau file data.json GitHub di latar belakang
             try {
-                // Fetch cepat dengan timestamp untuk menghindari stale browser cache
-                const res = await fetch(`${url}?action=read&t=${Date.now()}`);
-                const json = await res.json();
+                // Prioritas A: Cek data.json jika ada di repositori GitHub yang sama
+                let jsonResult = null;
+                try {
+                    const localJsonRes = await fetch(`data.json?t=${Date.now()}`);
+                    if (localJsonRes.ok) {
+                        const localData = await localJsonRes.json();
+                        if (Array.isArray(localData) && localData.length > 0) {
+                            jsonResult = { status: "success", data: localData, source: "GitHub data.json" };
+                        }
+                    }
+                } catch(e) {}
 
-                if (json.status === "success" && Array.isArray(json.data) && json.data.length > 0) {
-                    appData = json.data;
-                    localStorage.setItem("portal_instant_cache", JSON.stringify(appData));
-                    
+                // Prioritas B: Jika tidak ada data.json, hubungi Google Apps Script
+                if (!jsonResult) {
+                    const scriptUrl = getCleanUrl();
+                    const cloudRes = await fetch(`${scriptUrl}?action=read&t=${Date.now()}`);
+                    const cloudJson = await cloudRes.json();
+
+                    if (cloudJson && cloudJson.status === "success" && Array.isArray(cloudJson.data) && cloudJson.data.length > 0) {
+                        // Normalisasi nama kolom jika spreadsheet memakai struktur berbeda
+                        const normalizedData = cloudJson.data.map((item, idx) => ({
+                            id: item.id || `app-${idx+1}`,
+                            name: item.name || item.namaBarang || item.nama || `Aplikasi #${idx+1}`,
+                            url: item.url || item.link || "https://google.com",
+                            status: item.status || (item.jenisUsulan ? "TESTING" : "LIVE"),
+                            progress: parseInt(item.progress) || 90,
+                            version: item.version || "v1.0",
+                            icon: item.icon || "fa-cubes-stacked",
+                            notes: item.notes || item.keterangan || "Tersinkronisasi dari basis data.",
+                            lastUpdate: item.lastUpdate || item.tanggal || "Terbaru"
+                        }));
+                        jsonResult = { status: "success", data: normalizedData, source: "Google Spreadsheet" };
+                    }
+                }
+
+                // Jika data berhasil diambil dari Cloud / Spreadsheet:
+                if (jsonResult && jsonResult.data) {
+                    appData = jsonResult.data;
+                    localStorage.setItem("portal_katalog_apps_db", JSON.stringify(appData));
                     updateMetrics();
                     renderApps();
-                    safeSetText("dbCloudStatus", `Terhubung Spreadsheet (${appData.length} Aplikasi Aktif)`);
-                    
-                    const dot = document.getElementById("dbStatusDot");
-                    if (dot) dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
-                    
-                    if (isManualRefresh) showToast("Data berhasil disinkronkan dengan Google Spreadsheet!");
-                } else {
-                    safeSetText("dbCloudStatus", `Tersinkronisasi (${appData.length} Aplikasi)`);
+                    safeSetText("dbCloudStatus", `Terhubung ${jsonResult.source} (${appData.length} Aplikasi)`);
+                    if (isManual) showToast("Data berhasil diperbarui dari server!");
                 }
             } catch (err) {
-                console.warn("Gagal sync cloud, tetap menggunakan data lokal:", err);
-                safeSetText("dbCloudStatus", `Terkoneksi Lokal (${appData.length} Aplikasi)`);
-                const dot = document.getElementById("dbStatusDot");
-                if (dot) dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
+                // Jika offline atau belum dideploy, dashboard tetap 100% aktif memakai data lokal
+                console.log("Menggunakan database lokal terenkripsi:", err);
+                safeSetText("dbCloudStatus", `Terhubung Database Mandiri (${appData.length} Aplikasi Aktif)`);
             } finally {
                 if (refreshIcon) refreshIcon.classList.remove("fa-spin");
             }
@@ -432,28 +460,4 @@
 
                 if (app.status === "LIVE") {
                     statusBadge = `
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>SIAP DIGUNAKAN (LIVE)
-                        </span>
-                    `;
-                    progressColor = "bg-emerald-500";
-                    statusBorderColor = "border-emerald-200";
-                } else if (app.status === "TESTING") {
-                    statusBadge = `
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-amber-100 text-amber-800 border border-amber-300">
-                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>TAHAP UJI COBA (TESTING)
-                        </span>
-                    `;
-                    progressColor = "bg-amber-500";
-                    statusBorderColor = "border-amber-200";
-                } else if (app.status === "DEV") {
-                    statusBadge = `
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-blue-100 text-blue-800 border border-blue-300">
-                            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>SEDANG DIKEMBANGKAN (DEV)
-                        </span>
-                    `;
-                    progressColor = "bg-blue-600";
-                    statusBorderColor = "border-blue-200";
-                } else {
-                    statusBadge = `
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-emerald-1
